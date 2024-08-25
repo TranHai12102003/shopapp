@@ -54,7 +54,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                         );
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                        response.sendError(HttpServletResponse.SC_ACCEPTED,"Đặt hàng thành công");
                     }
                 }
             }
