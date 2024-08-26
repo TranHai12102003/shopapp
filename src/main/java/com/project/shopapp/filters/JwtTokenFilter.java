@@ -43,21 +43,26 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
             final String authHeader=request.getHeader("Authorization");
-            if(authHeader != null && authHeader.startsWith("Bearer ")){
+            if(authHeader== null || !authHeader.startsWith("Bearer ")){
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized");
+                return;
+            }
                 final String token =authHeader.substring(7);
                 final String phoneNumber=jwtTokenUtil.extractPhoneNumber(token);
                 if(phoneNumber != null && SecurityContextHolder.getContext().getAuthentication()==null){
-                    UserDetails userDetails=userDetailsService.loadUserByUsername(phoneNumber);
+                    User userDetails= (User) userDetailsService.loadUserByUsername(phoneNumber);
                     if(jwtTokenUtil.validateToken(token,userDetails)){
-                        UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
-                                userDetails,null,userDetails.getAuthorities()
+                        UsernamePasswordAuthenticationToken authenticationToken=
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
                         );
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     }
                 }
-            }
-            filterChain.doFilter(request,response);
+            filterChain.doFilter(request,response);//enable bypass
         }catch (Exception e){
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized");
         }

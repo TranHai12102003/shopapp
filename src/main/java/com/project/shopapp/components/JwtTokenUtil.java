@@ -30,6 +30,7 @@ public class JwtTokenUtil {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
+    //tạo token cho người dùng khi đăng nhập thành công
     public String generateToken(User user) throws Exception {
         //properties => claims
         Map<String,Object> claims= new HashMap<>();
@@ -78,7 +79,7 @@ public class JwtTokenUtil {
     }
 
     //kiem tra han su dung cua token
-    public boolean isTokenExpried(String token){
+    public boolean isTokenExpired(String token){
         Date expirationDate=this.extractClaim(token,Claims::getExpiration);
         return expirationDate.before(new Date());
     }
@@ -89,6 +90,6 @@ public class JwtTokenUtil {
 
     public boolean validateToken(String token, UserDetails userDetails){
         String phoneNumber= extractPhoneNumber(token);
-        return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpried(token));
+        return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
