@@ -1,5 +1,6 @@
 package com.project.shopapp.controllers;
 
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.services.IOrderService;
@@ -17,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final IOrderService orderService;
+    private final LocalizationUtils localizationUtils;
+
     @PostMapping("")
     public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO, BindingResult result){
         try {

@@ -1,6 +1,7 @@
 package com.project.shopapp.services;
 
-import com.project.shopapp.components.JwtTokenUtil;
+import com.project.shopapp.components.JwtTokenUtils;
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.PermissionDenyException;
@@ -8,6 +9,7 @@ import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
 import com.project.shopapp.repositories.RoleRepository;
 import com.project.shopapp.repositories.UserRepository;
+import com.project.shopapp.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,28 +18,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.Optional;
-import java.util.zip.DataFormatException;
+
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private  final JwtTokenUtil jwtTokenUtil;
+    private  final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
+    private final LocalizationUtils localizationUtils;
+
 
     @Override
     public User createUser(UserDTO userDTO) throws Exception {
         String phoneNumber=userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)){
-            throw new DataIntegrityViolationException("Phone number already exists");
+            throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKeys.PHONE_NUMBER_ALREADY_EXISTS));
         }
         Role role=roleRepository.findById(userDTO.getRoleId())
-                .orElseThrow(()->new DataNotFoundException("Role not found"));
+                .orElseThrow(()->new DataNotFoundException(
+                        localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
         if(role.getName().toUpperCase().equals(Role.ADMIN)){
-            throw new PermissionDenyException("You cannot register an admin account");
+            throw new PermissionDenyException(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_ROLE_AN_ADMIN_ACCOUNT));
         }
         //Convert từ userDTO sang user
         User newUser=User.builder()
@@ -68,14 +72,14 @@ public class UserService implements IUserService{
         //doan nay lien quan nhieu den phan security (kho)
         Optional<User> optionalUser=userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
-            throw new DataNotFoundException("Invalid phone number or password");
+            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.INVALID_PHONE_NUMBER));
         }
 //        return optionalUser.get();//muốn trả về JWT token
         User existingUser= optionalUser.get();
         //kiem tra password
         if(existingUser.getFacebookAccountId()==0 && existingUser.getGoogleAccountId()==0){
             if(!passwordEncoder.matches(password, existingUser.getPassword())){
-                throw new BadCredentialsException("Wrong phone number or password");
+                throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKeys.WRONG_PASSWORD));
             }
         }
         UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
@@ -83,6 +87,6 @@ public class UserService implements IUserService{
         );
         //Authenticate(Xac thuc) voi Java Spring security
         authenticationManager.authenticate(authenticationToken);
-        return jwtTokenUtil.generateToken(optionalUser.get());
+        return jwtTokenUtils.generateToken(optionalUser.get());
     }
 }

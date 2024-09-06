@@ -1,19 +1,17 @@
 package com.project.shopapp.filters;
 
-import com.project.shopapp.components.JwtTokenUtil;
+import com.project.shopapp.components.JwtTokenUtils;
 import com.project.shopapp.models.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jdk.jfr.Name;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -29,7 +27,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtils;
 
     @Override
     protected void doFilterInternal( @NonNull HttpServletRequest request
@@ -43,15 +41,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 return;
             }
             final String authHeader=request.getHeader("Authorization");
-            if(authHeader== null || !authHeader.startsWith("Bearer ")){
+            if(authHeader == null || !authHeader.startsWith("Bearer ")){
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized");
                 return;
             }
                 final String token =authHeader.substring(7);
-                final String phoneNumber=jwtTokenUtil.extractPhoneNumber(token);
+                final String phoneNumber= jwtTokenUtils.extractPhoneNumber(token);
                 if(phoneNumber != null && SecurityContextHolder.getContext().getAuthentication()==null){
                     User userDetails= (User) userDetailsService.loadUserByUsername(phoneNumber);
-                    if(jwtTokenUtil.validateToken(token,userDetails)){
+                    if(jwtTokenUtils.validateToken(token,userDetails)){
                         UsernamePasswordAuthenticationToken authenticationToken=
                                 new UsernamePasswordAuthenticationToken(
                                         userDetails,
