@@ -9,15 +9,13 @@ import com.project.shopapp.models.ProductImage;
 import com.project.shopapp.responses.ProductListResponse;
 import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.services.IProductService;
-import com.project.shopapp.services.ProductService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.util.StringUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -25,8 +23,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -61,7 +57,9 @@ public class ProductController {
 
             return ResponseEntity.ok(newProduct);
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body( localizationUtils
+                            .getLocalizedMessage(MessageKeys.CREATE_PRODUCT_FAILED,e.getMessage()));
         }
     }
 
@@ -72,7 +70,7 @@ public class ProductController {
             Product existingProduct=productService.getProductById(productId);
             files =files == null ? new ArrayList<>() : files;
             if(files.size() > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT){
-                return ResponseEntity.badRequest().body("You can only upload maximum 5 images");
+                return ResponseEntity.badRequest().body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
             }
             List<ProductImage> productImages=new ArrayList<>();
             // kiểm tra xem nó null không nếu có thì tạo ra mảng rỗng
@@ -88,11 +86,13 @@ public class ProductController {
                 }
                 //kiểm tra kích thước và định dạng
                 if(file.getSize()>10*1024*1024){//kích thước lớn hơn 10 MB
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body("Dung lượng quá lớn! Tối đa 10MB");
+                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                            .body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_LARGE));
                 }
                 String contentType=file.getContentType();
                 if(contentType == null || !contentType.startsWith("image/")){
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Tệp phải là hình ảnh");
+                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                            .body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
                 }
                 //Lưu  file và cập nhật thumbnail trong DTO
                 String filename=storeFile(file);

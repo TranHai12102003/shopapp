@@ -4,6 +4,7 @@ import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.services.IOrderService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +82,7 @@ public class OrderController {
     public ResponseEntity<?> deleteOrder(@Valid @PathVariable long id){
         //xoa mem => cap nhat truong active = false
         orderService.deleteOrder(id);
-        return ResponseEntity.ok("Order deleted succsessfully");
+        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY,id));
     }
 
 }

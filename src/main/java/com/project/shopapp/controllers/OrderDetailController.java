@@ -6,6 +6,7 @@ import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.OrderDetail;
 import com.project.shopapp.responses.OrderDetailResponse;
 import com.project.shopapp.services.OrderDetailService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -68,6 +69,7 @@ public class OrderDetailController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrderDeatail(@Valid @PathVariable("id") Long id){
         orderDetailService.deleteById(id);
-        return ResponseEntity.ok("OrderDetail deleted successfully");
+        return ResponseEntity.ok(localizationUtils
+                .getLocalizedMessage(MessageKeys.DELETE_ORDER_DETAIL_SUCCESSFULLY,id));
     }
 }

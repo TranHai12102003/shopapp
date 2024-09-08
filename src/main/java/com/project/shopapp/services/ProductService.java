@@ -1,5 +1,6 @@
 package com.project.shopapp.services;
 
+import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
@@ -11,6 +12,7 @@ import com.project.shopapp.repositories.CategoryRepository;
 import com.project.shopapp.repositories.ProductImageRepository;
 import com.project.shopapp.repositories.ProductRepository;
 import com.project.shopapp.responses.ProductResponse;
+import com.project.shopapp.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,13 +26,14 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
+    private final LocalizationUtils localizationUtils;
+
     @Override
     public Product createProduct(ProductDTO productDTO) throws DataNotFoundException {
        Category existingCategory= categoryRepository
                 .findById(productDTO.getCategoryId())
                 .orElseThrow(()->
-                        new DataNotFoundException(
-                        "Cannot find category with id : "+ productDTO.getCategoryId()));
+                        new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.CATEGORY_NOT_FOUND)));
         Product newProduct=Product.builder()
                 .name(productDTO.getName())
                 .price(productDTO.getPrice())
@@ -69,7 +72,7 @@ public class ProductService implements IProductService {
             //Có thể sử dụng modelMapper
             Category existingCategory= categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(()->new DataNotFoundException(
-                            "Cannot find category with id : "+ productDTO.getCategoryId()));
+                            localizationUtils.getLocalizedMessage(MessageKeys.CATEGORY_NOT_FOUND)+productDTO.getCategoryId()));
             existingProduct.setName(productDTO.getName());
             existingProduct.setCategory(existingCategory);
             existingProduct.setPrice(productDTO.getPrice());
