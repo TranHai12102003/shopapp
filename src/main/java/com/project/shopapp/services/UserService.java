@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -32,16 +33,20 @@ public class UserService implements IUserService{
 
 
     @Override
+    @Transactional
     public User createUser(UserDTO userDTO) throws Exception {
         String phoneNumber=userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)){
-            throw new DataIntegrityViolationException(localizationUtils.getLocalizedMessage(MessageKeys.PHONE_NUMBER_ALREADY_EXISTS));
+            throw new DataIntegrityViolationException(localizationUtils
+                    .getLocalizedMessage(MessageKeys.PHONE_NUMBER_ALREADY_EXISTS));
         }
         Role role=roleRepository.findById(userDTO.getRoleId())
                 .orElseThrow(()->new DataNotFoundException(
-                        localizationUtils.getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
+                        localizationUtils
+                                .getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS)));
         if(role.getName().toUpperCase().equals(Role.ADMIN)){
-            throw new PermissionDenyException(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_ROLE_AN_ADMIN_ACCOUNT));
+            throw new PermissionDenyException(localizationUtils
+                    .getLocalizedMessage(MessageKeys.REGISTER_ROLE_AN_ADMIN_ACCOUNT));
         }
         //Convert từ userDTO sang user
         User newUser=User.builder()
@@ -67,20 +72,27 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public String login(String phoneNumber, String password) throws Exception{
+    public String login(String phoneNumber, String password,Long roleId) throws Exception{
         // trả về kiểu String vì khi đăng nhập nó sẽ trả về token là 1 chuỗi String
         //doan nay lien quan nhieu den phan security (kho)
         Optional<User> optionalUser=userRepository.findByPhoneNumber(phoneNumber);
         if(optionalUser.isEmpty()){
-            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.INVALID_PHONE_NUMBER));
+            throw new DataNotFoundException(localizationUtils
+                    .getLocalizedMessage(MessageKeys.INVALID_PHONE_NUMBER));
         }
 //        return optionalUser.get();//muốn trả về JWT token
         User existingUser= optionalUser.get();
         //kiem tra password
         if(existingUser.getFacebookAccountId()==0 && existingUser.getGoogleAccountId()==0){
             if(!passwordEncoder.matches(password, existingUser.getPassword())){
-                throw new BadCredentialsException(localizationUtils.getLocalizedMessage(MessageKeys.WRONG_PASSWORD));
+                throw new BadCredentialsException(localizationUtils
+                        .getLocalizedMessage(MessageKeys.WRONG_PASSWORD));
             }
+        }
+        Optional<Role> optionalRole=roleRepository.findById(roleId);
+        if(optionalRole.isEmpty() || !roleId.equals(existingUser.getRole().getId())){
+            throw new DataNotFoundException(localizationUtils
+                    .getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS));
         }
         UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
                 phoneNumber,password,existingUser.getAuthorities()

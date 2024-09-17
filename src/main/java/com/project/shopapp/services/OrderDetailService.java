@@ -11,6 +11,7 @@ import com.project.shopapp.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
@@ -19,7 +20,9 @@ public class OrderDetailService implements IOrderDetailService{
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final ProductRepository productRepository;
+
     @Override
+    @Transactional
     public OrderDetail createOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         //tim xem orderId co ton tai khong
         Order order=orderRepository.findById(orderDetailDTO.getOrderId())
@@ -46,13 +49,17 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public OrderDetail updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         OrderDetail existingOrderDetail=orderDetailRepository
-                .findById(id).orElseThrow(()->new DataNotFoundException("Cannot find OrderDetail with id: "+id));
+                .findById(id)
+                .orElseThrow(()->new DataNotFoundException("Cannot find OrderDetail with id: "+id));
         Order existingOrder = orderRepository
-                .findById(orderDetailDTO.getOrderId()).orElseThrow(()->new DataNotFoundException("Cannot find Order with id: "+id));
+                .findById(orderDetailDTO.getOrderId())
+                .orElseThrow(()->new DataNotFoundException("Cannot find Order with id: "+id));
         Product existingProduct = productRepository
-                .findById(orderDetailDTO.getProductId()).orElseThrow(()->new DataNotFoundException("Cannot find Product with id: "+id));
+                .findById(orderDetailDTO.getProductId())
+                .orElseThrow(()->new DataNotFoundException("Cannot find Product with id: "+id));
         existingOrderDetail.setProduct(existingProduct);
         existingOrderDetail.setOrder(existingOrder);
         existingOrderDetail.setPrice(orderDetailDTO.getPrice());
@@ -63,6 +70,7 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         orderDetailRepository.deleteById(id);
     }
