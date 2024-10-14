@@ -94,11 +94,29 @@ public class UserService implements IUserService{
             throw new DataNotFoundException(localizationUtils
                     .getLocalizedMessage(MessageKeys.ROLE_DOES_NOT_EXISTS));
         }
+        if(!optionalUser.get().isActive()){
+            throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.USER_IS_LOCKED));
+        }
         UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
                 phoneNumber,password,existingUser.getAuthorities()
         );
         //Authenticate(Xac thuc) voi Java Spring security
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtils.generateToken(optionalUser.get());
+    }
+
+    @Override
+    public User getUserDetailFromToken(String token) throws Exception {
+        if(jwtTokenUtils.isTokenExpired(token)){
+            throw new Exception("Token is expired");
+        }
+        String phoneNumber= jwtTokenUtils.extractPhoneNumber(token);
+        Optional<User> user=userRepository.findByPhoneNumber(phoneNumber);
+        if(user.isPresent()){
+            return user.get();
+        }
+        else {
+            throw new Exception("User not found");
+        }
     }
 }

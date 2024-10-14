@@ -16,4 +16,7 @@ public interface ICategoryService {
     Category updateCategory(long categoryId, CategoryDTO category) throws DataNotFoundException;
 
     void deleteCategory(long id);
+//    List<Category> getParentCategories();
+     List<Category> getSubCategories(Long parentId);
+     List<Category> getParentCategories();
 }

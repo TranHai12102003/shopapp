@@ -1,11 +1,12 @@
 package com.project.shopapp.services;
 
+import com.project.shopapp.dtos.CartItemDTO;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
-import com.project.shopapp.models.Order;
-import com.project.shopapp.models.OrderStatus;
-import com.project.shopapp.models.User;
+import com.project.shopapp.models.*;
+import com.project.shopapp.repositories.OrderDetailRepository;
 import com.project.shopapp.repositories.OrderRepository;
+import com.project.shopapp.repositories.ProductRepository;
 import com.project.shopapp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,7 +23,9 @@ import java.util.List;
 public class OrderService implements IOrderService{
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     @Transactional
@@ -39,7 +43,7 @@ public class OrderService implements IOrderService{
         Order order=new Order();
         modelMapper.map(orderDTO,order);
         order.setUser(user);
-        order.setOrderDate(new Date());//lay thoi diem hien tai
+        order.setOrderDate(LocalDate.now());//lay thoi diem hien tai
         order.setStatus(OrderStatus.PENDING);
         //kiem tra shipping date >= ngay hom nay
         LocalDate shippingDate=orderDTO.getShippingDate()==null ? LocalDate.now() : orderDTO.getShippingDate();
@@ -48,7 +52,32 @@ public class OrderService implements IOrderService{
         }
         order.setShippingDate(shippingDate);
         order.setActive(true);
+        order.setTotalMoney(orderDTO.getTotalMoney());
         orderRepository.save(order);
+        //Tao danh sach cac doi tuong OrderDetail tu CartItems
+        List<OrderDetail> orderDetails=new ArrayList<>();
+        for (CartItemDTO cartItemDTO : orderDTO.getCartItems()){
+            //Tao 1 doi tuong OrderDetail tu CartItemDTO
+            OrderDetail orderDetail=new OrderDetail();
+            orderDetail.setOrder(order);
+            //Lay thong tin san pham tu cartItemDTO
+            Long productId= cartItemDTO.getProductId();
+            int quantity= cartItemDTO.getQuantity();
+
+            //tim thong tin san pham tu csdl(hoac su dung cache neu can) // co the kiem tra trong kho con hang k
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(()->new DataNotFoundException("Product not found with id: "+ productId));
+            //Dat thong tin cho OrderDetail
+            orderDetail.setProduct(product);
+            orderDetail.setNumberOfProduct(quantity);
+            //Cac truong khac cua OrderDetail neu can
+            orderDetail.setPrice(product.getPrice());
+            orderDetail.setTotalMoney(product.getPrice()*quantity);
+            //them OrderDetail vao danh sach
+            orderDetails.add(orderDetail);
+        }
+        //luu danh sach OrderDetail vao csdl
+        orderDetailRepository.saveAll(orderDetails);
         return order;
     }
 

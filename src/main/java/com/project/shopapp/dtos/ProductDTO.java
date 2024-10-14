@@ -22,7 +22,7 @@ public class ProductDTO {
     private String name;
 
     @Min(value = 0,message = "Giá phải lớn hơn hoặc bằng 0")
-    @Max(value = 10000000,message = "Giá phải nhỏ hơn hoặc bằng 10.000.000")
+    @Max(value = 100000000,message = "Giá phải nhỏ hơn hoặc bằng 100.000.000")
     private Float price;
 
     private String thumbnail;
@@ -31,5 +31,7 @@ public class ProductDTO {
     @JsonProperty("category_id")
     private Long categoryId;
 
+    @JsonProperty("product_attributes")
+    List<ProductAttributeDTO> productAttributeDTOS;
 
 }

@@ -14,16 +14,19 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     Page<Product> findAll(Pageable pageable);//phân trang
 
-
+    //tìm kiếm san pham theo ten va danh muc
     @Query("SELECT p FROM Product p WHERE " +
-            "(:categoryId IS NULL OR :categoryId = 0 OR p.category.id = :categoryId) " +
+            "(:categoryId IS NULL OR :categoryId = 0 OR p.category.id = :categoryId OR p.category.parentId = :categoryId) " +
             "AND (:keyword IS NULL OR :keyword = '' OR (p.name LIKE %:keyword% OR p.description LIKE %:keyword%))")
     Page<Product> searchProducts
             (@Param("categoryId") Long categoryId,
              @Param("keyword") String keyword, Pageable pageable);
+
+    //lay ra san pham va va hinh anh cua san pham do
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.productImages WHERE p.id = :productId")
     Optional<Product> getDetailProduct(@Param("productId") Long productId);
 
+    // lay danh sach san pham tu danh sach id
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
     List<Product> findProductsByIds(@Param("productIds")List<Long> productIds);
 }

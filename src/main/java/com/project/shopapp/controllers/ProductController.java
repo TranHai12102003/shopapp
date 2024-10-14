@@ -169,8 +169,8 @@ public class ProductController {
         // với số trang page (bắt đầu từ 0) và limit (số bản ghi mỗi trang).
         PageRequest pageRequest=PageRequest.of(
                 page,limit,
-                //Sort.by("createdAt").descending());
-                Sort.by("id").ascending());
+                Sort.by("createdAt").descending());
+//                Sort.by("id").ascending());
         Page<ProductResponse> productPage=productService.getAllProducts(keyword,categoryId,pageRequest);
         //lay tong so trang
         int totalPages=productPage.getTotalPages();

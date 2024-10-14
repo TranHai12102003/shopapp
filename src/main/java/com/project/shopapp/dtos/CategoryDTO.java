@@ -1,5 +1,6 @@
 package com.project.shopapp.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
@@ -12,4 +13,7 @@ import lombok.*;
 public class CategoryDTO {
     @NotEmpty(message = "Category is name cannot be empty")//trường name không được để trống
     private String name;
+
+    @JsonProperty("parent_id")
+    private Long parentId;
 }
