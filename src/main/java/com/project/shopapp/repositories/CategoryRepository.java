@@ -6,4 +6,8 @@ import java.util.*;
 
 
 public interface CategoryRepository extends JpaRepository<Category,Long> {
+        List<Category> findByParentIsNull(); // Lấy danh sách danh mục cha
+
+        List<Category> findByParentId(Long parentId);
+
 }

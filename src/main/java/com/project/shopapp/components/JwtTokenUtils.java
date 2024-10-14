@@ -35,6 +35,7 @@ public class JwtTokenUtils {
         Map<String,Object> claims= new HashMap<>();
 //        this.generateSecretKey();
         claims.put("phoneNumber",user.getPhoneNumber());
+        claims.put("userId",user.getId());
         try {
             //mã hóa JWT Token:
             String token= Jwts.builder()

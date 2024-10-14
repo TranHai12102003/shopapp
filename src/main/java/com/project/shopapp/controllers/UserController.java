@@ -2,9 +2,11 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.dtos.UserLoginDTO;
+import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
 import com.project.shopapp.responses.LoginResponse;
 import com.project.shopapp.responses.RegisterResponse;
+import com.project.shopapp.responses.UserResponse;
 import com.project.shopapp.services.UserService;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.utils.MessageKeys;
@@ -13,10 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -43,6 +43,9 @@ public class UserController {
                 registerResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.PASSWORD_NOT_MATCH));
                 return ResponseEntity.badRequest().body(registerResponse);
             }
+            if(userDTO.getRoleId()==null){
+                userDTO.setRoleId(1L);
+            }
             User user=userService.createUser(userDTO);
 //                return ResponseEntity.ok("Register successfully");
                 registerResponse.setMessage(localizationUtils.getLocalizedMessage(MessageKeys.REGISTER_SUCCESSFULLY));
@@ -64,7 +67,7 @@ public class UserController {
             String token = userService.login(
                     userLoginDTO.getPhoneNumber(),
                     userLoginDTO.getPassword(),
-                    userLoginDTO.getRoleId());
+                    userLoginDTO.getRoleId()==null ? 1 : userLoginDTO.getRoleId());
             //tra ve token trong response
             return ResponseEntity.ok(LoginResponse.builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_SUCCESSFULLY))
@@ -75,6 +78,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(LoginResponse.builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKeys.LOGIN_FAILED,e.getMessage()))
                     .build());
+        }
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token){
+        try {
+            String extractedToken=token.substring(7);//Loai bo "Bearer" tu chuoi token
+            User user=userService.getUserDetailFromToken(extractedToken);
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().build();
         }
     }
 }
