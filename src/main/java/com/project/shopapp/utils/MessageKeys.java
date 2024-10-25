@@ -24,11 +24,15 @@ public class MessageKeys {
     public static final String CREATE_PRODUCT_FAILED="product.create_product_failed";
     public static final String CAN_NOT_FIND_PRODUCTS="product.find_product_failed";
 
-    public static final String UPLOAD_IMAGES_MAX_5 = "product.upload_images.error_max_5_images";
+    public static final String UPLOAD_IMAGES_MAX_6 = "product.upload_images.error_max_5_images";
     public static final String UPLOAD_IMAGES_FILE_LARGE = "product.upload_images.file_large";
     public static final String UPLOAD_IMAGES_FILE_MUST_BE_IMAGE = "product.upload_images.file_must_be_image";
 
     public static final String ATTRIBUTE_NOT_FOUND="attribute.find_attribute_failed";
     public static final String INSERT_ATTRIBUTE_SUCCESSFULLY="attribute.insert_attribute_successfully";
     public static final String INSERT_ATTRIBUTE_FAILED="attribute.insert_attribute_failed";
+
+    public static final String INSERT_SLIDER_FAILED="slider.create_slider_failed";
+    public static final String CAN_NOT_FIND_SLIDER="slider.find_slider_id_failed";
+    public static final String DELETE_SLIDER_SUCESSFULLY="slider.delete_successfully";
 }

@@ -58,10 +58,10 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-//    @GetMapping("/parents")
-//    public List<Category> getPentCategories(){
-//        return  categoryService.getParentCategories();
-//    }
+    @GetMapping("/parents")
+    public List<Category> getPentCategories(){
+        return  categoryService.getParentCategories();
+    }
 
     @GetMapping("/{parentId}/subcategories")
     public List<Category> getSubCategories(@PathVariable Long parentId) {

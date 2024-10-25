@@ -29,4 +29,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     // lay danh sach san pham tu danh sach id
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
     List<Product> findProductsByIds(@Param("productIds")List<Long> productIds);
+
+    //lấy sản phẩm thuộc 1 danh muc
+    Page<Product> findByCategoryId(Long categoryId,Pageable pageable);
 }

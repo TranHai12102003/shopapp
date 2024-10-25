@@ -60,6 +60,9 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     String.format("%s/categories/**", apiPrefix)).permitAll()
 
+                            .requestMatchers(GET,
+                                    String.format("%s/categories/parents**", apiPrefix)).permitAll()
+
                             .requestMatchers(POST,
                                     String.format("%s/categories/**", apiPrefix)).hasAnyRole(Role.ADMIN)
 
@@ -132,6 +135,20 @@ public class WebSecurityConfig {
 
                             .requestMatchers(GET,
                                     String.format("%s/*/subcategories",apiPrefix)).permitAll()
+
+                            //slider
+                            .requestMatchers(POST,
+                                    String.format("%s/sliders/**",apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(GET,
+                                    String.format("%s/sliders",apiPrefix)).permitAll()
+                            .requestMatchers(GET,
+                                    String.format("%s/sliders/images/*",apiPrefix)).permitAll()
+                            .requestMatchers(GET,
+                                    String.format("%s/sliders/*/action",apiPrefix)).permitAll()
+                            .requestMatchers(PUT,
+                                    String.format("%s/sliders/update/*",apiPrefix)).hasRole(Role.ADMIN)
+                            .requestMatchers(DELETE,
+                                    String.format("%s/sliders/**",apiPrefix)).hasRole(Role.ADMIN)
 
                             .anyRequest().authenticated();
                     //.anyRequest().permitAll();

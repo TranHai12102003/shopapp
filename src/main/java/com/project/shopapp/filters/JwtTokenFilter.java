@@ -76,7 +76,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/login",apiPrefix),"POST"),
                 Pair.of(String.format("%s/roles",apiPrefix),"GET"),
                 Pair.of(String.format("%s/attributes",apiPrefix),"GET"),
-                Pair.of(String.format("%s/*/subcategories", apiPrefix), "GET")
+                Pair.of(String.format("%s/*/subcategories", apiPrefix), "GET"),
+                Pair.of(String.format("%s/sliders", apiPrefix), "GET")
         );
         //duyệt qua danh sách bypassTokens kiểm tra xem đường dẫn URL truyền vào có tồn tại trong
         //bypassTokens không và kiểm tra xem method có giống với method trong bypassTokens không

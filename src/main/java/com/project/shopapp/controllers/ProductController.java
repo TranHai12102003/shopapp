@@ -69,7 +69,8 @@ public class ProductController {
             Product existingProduct=productService.getProductById(productId);
             files =files == null ? new ArrayList<>() : files;
             if(files.size() > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT){
-                return ResponseEntity.badRequest().body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
+                return ResponseEntity.badRequest()
+                        .body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_6));
             }
             List<ProductImage> productImages=new ArrayList<>();
             // kiểm tra xem nó null không nếu có thì tạo ra mảng rỗng
@@ -179,6 +180,21 @@ public class ProductController {
                         .products(products)
                         .totalPages(totalPages)
                         .build());
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ProductListResponse> getProductsByCategoryId
+            (@PathVariable Long categoryId,
+             @RequestParam(defaultValue = "0") int page,
+             @RequestParam(defaultValue = "10") int limit){
+        PageRequest pageRequest=PageRequest.of(page,limit,Sort.by("createdAt").descending());
+        Page<ProductResponse> productPage=productService.getProductsByCategoryId(categoryId,pageRequest);
+        int totalPages=productPage.getTotalPages();
+        List<ProductResponse> products=productPage.getContent();
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .products(products)
+                .totalPages(totalPages)
+                .build());
     }
 
     @GetMapping("/{id}")

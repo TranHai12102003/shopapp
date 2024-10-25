@@ -2,6 +2,7 @@ package com.project.shopapp.services;
 
 import com.project.shopapp.components.JwtTokenUtils;
 import com.project.shopapp.components.LocalizationUtils;
+import com.project.shopapp.dtos.UpdateUserDTO;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.exceptions.PermissionDenyException;
@@ -54,6 +55,7 @@ public class UserService implements IUserService{
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .password(userDTO.getPassword())
+                .active(userDTO.isActive())
                 .dateOfBirth(userDTO.getDateOfBirth())
                 .facebookAccountId(userDTO.getFacebookAccountId())
                 .googleAccountId(userDTO.getGoogleAccountId())
@@ -118,5 +120,50 @@ public class UserService implements IUserService{
         else {
             throw new Exception("User not found");
         }
+    }
+
+    @Override
+    public User updateUser(Long userId, UpdateUserDTO updatedUserDTO) throws Exception {
+        // kiem tra userId co ton tai khong
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+        // Check if the phone number is being changed and if it already exists for another user
+        String newPhoneNumber = updatedUserDTO.getPhoneNumber();
+        if (!existingUser.getPhoneNumber().equals(newPhoneNumber) &&
+                userRepository.existsByPhoneNumber(newPhoneNumber)) {
+            throw new DataIntegrityViolationException("Phone number already exists");
+        }
+
+        // Update user information based on the DTO
+        if (updatedUserDTO.getFullName() != null) {
+            existingUser.setFullName(updatedUserDTO.getFullName());
+        }
+        if (newPhoneNumber != null) {
+            existingUser.setPhoneNumber(newPhoneNumber);
+        }
+        if (updatedUserDTO.getAddress() != null) {
+            existingUser.setAddress(updatedUserDTO.getAddress());
+        }
+        if (updatedUserDTO.getDateOfBirth() != null) {
+            existingUser.setDateOfBirth(updatedUserDTO.getDateOfBirth());
+        }
+        if (updatedUserDTO.getFacebookAccountId() > 0) {
+            existingUser.setFacebookAccountId(updatedUserDTO.getFacebookAccountId());
+        }
+        if (updatedUserDTO.getGoogleAccountId() > 0) {
+            existingUser.setGoogleAccountId(updatedUserDTO.getGoogleAccountId());
+        }
+
+        // Update the password if it is provided in the DTO
+        if (updatedUserDTO.getPassword() != null
+                && !updatedUserDTO.getPassword().isEmpty()) {
+            String newPassword = updatedUserDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            existingUser.setPassword(encodedPassword);
+        }
+        //existingUser.setRole(updatedRole);
+        // Save the updated user
+        return userRepository.save(existingUser);
     }
 }
