@@ -167,16 +167,25 @@ public class ProductService implements IProductService {
         Product existingProduct= productRepository.findById(productId)
                 .orElseThrow(()->new DataNotFoundException(
                         "Cannot find product with id : "+ productImageDTO.getProductId()));
-        ProductImage newProductImage=ProductImage.builder()
-                .product(existingProduct)
-                .imageUrl(productImageDTO.getImageUrl())
-                .build();
         //không cho thêm quá 5 ảnh cho 1 sản phẩm
         int size=productImageRepository.findByProductId(productId).size();
         if(size>=ProductImage.MAXIMUM_IMAGES_PER_PRODUCT){
             throw new InvalidParamException("Number of images must be <="+ProductImage.MAXIMUM_IMAGES_PER_PRODUCT);
         }
-        return  productImageRepository.save(newProductImage);
+        // Tạo mới ProductImage và lưu vào cơ sở dữ liệu
+        ProductImage newProductImage=ProductImage.builder()
+                .product(existingProduct)
+                .imageUrl(productImageDTO.getImageUrl())
+                .build();
+        // Lưu ProductImage vào cơ sở dữ liệu và nhận id tự động sinh ra
+        newProductImage = productImageRepository.save(newProductImage);
+
+        if(existingProduct.getThumbnail()==null || existingProduct.getThumbnail().isEmpty()){
+            existingProduct.setThumbnail(newProductImage.getImageUrl());
+            productRepository.save(existingProduct);
+        }
+
+        return  newProductImage;
     }
 
 
