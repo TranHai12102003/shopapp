@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
@@ -24,8 +26,8 @@ import java.util.List;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
-//@EnableMethodSecurity
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
+@EnableMethodSecurity()
 @EnableWebMvc
 @RequiredArgsConstructor
 public class WebSecurityConfig {
@@ -97,6 +99,8 @@ public class WebSecurityConfig {
 
                             .requestMatchers(GET,
                                     String.format("%s/orders/**", apiPrefix)).permitAll()
+//                            .requestMatchers(GET,
+//                                    String.format("%s/orders/get-orders-by-keyword", apiPrefix)).hasRole(Role.ADMIN)
 
                             .requestMatchers(PUT,
                                     String.format("%s/orders/**", apiPrefix)).hasRole(Role.ADMIN)

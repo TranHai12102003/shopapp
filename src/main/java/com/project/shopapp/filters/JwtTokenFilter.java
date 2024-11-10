@@ -71,7 +71,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final List<Pair<String,String>> bypassTokens= Arrays.asList(
                 Pair.of(String.format("%s/products",apiPrefix),"GET"),
                 Pair.of(String.format("%s/categories",apiPrefix),"GET"),
-                Pair.of(String.format("%s/orders", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register",apiPrefix),"POST"),
                 Pair.of(String.format("%s/users/login",apiPrefix),"POST"),
                 Pair.of(String.format("%s/roles",apiPrefix),"GET"),
@@ -79,6 +78,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/*/subcategories", apiPrefix), "GET"),
                 Pair.of(String.format("%s/sliders", apiPrefix), "GET")
         );
+
+        String requestPath = request.getServletPath();
+        String requestMethod =request.getMethod();
+
+        if(requestPath.equals(String.format("%s/orders",apiPrefix)) && requestMethod.equals("GET")){
+            return  true;
+        }
+
         //duyệt qua danh sách bypassTokens kiểm tra xem đường dẫn URL truyền vào có tồn tại trong
         //bypassTokens không và kiểm tra xem method có giống với method trong bypassTokens không
         //nếu thỏa nó sẽ cho đi qua mà k cần phải kiểm tra token
