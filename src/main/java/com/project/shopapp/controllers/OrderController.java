@@ -99,7 +99,7 @@ public class OrderController {
     public ResponseEntity<OrderListResponse> getOrdersByKeyword(
             @RequestParam(defaultValue = "",required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit){
+            @RequestParam(defaultValue = "12") int limit){
         //Tao pageable tu thong tin trang va gioi han
         //PageRequest.of(page, size) tạo ra một đối tượng PageRequest
         // với số trang page (bắt đầu từ 0) và limit (số bản ghi mỗi trang).
