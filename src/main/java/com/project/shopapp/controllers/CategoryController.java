@@ -2,12 +2,15 @@ package com.project.shopapp.controllers;
 
 import com.project.shopapp.dtos.CategoryDTO;
 import com.project.shopapp.models.Category;
-import com.project.shopapp.responses.CategoryResponse;
+import com.project.shopapp.responses.*;
 import com.project.shopapp.services.CategoryService;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -48,14 +51,30 @@ public class CategoryController {
     }
 
     @GetMapping("")//http://localhost:8080/api/v1/categories?page=16&limit=10
-    public ResponseEntity<List<Category>> getAllCategories(
+    public ResponseEntity<CategoryListResponse> getAllCategories(
             //@RequestParam("page") đây là tham số ở client
             //int page đây là tham số của server
-            @RequestParam("page") int page,
-            @RequestParam("limit") int limit)
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int limit)
     {
-        List<Category> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+        PageRequest pageRequest=PageRequest.of(
+                page,limit,
+                Sort.by("id").ascending());
+        Page<CategoryResponse> categoryPage=categoryService
+                .getAllCategories(pageRequest)
+                .map(CategoryResponse::fromCategory);
+        //lay tong so trang
+        int totalPages=categoryPage.getTotalPages();
+        List<CategoryResponse> categoryResponses=categoryPage.getContent();
+        return ResponseEntity.ok(CategoryListResponse.builder()
+                .categories(categoryResponses)
+                .totalPages(totalPages)
+                .build());
+    }
+
+    @GetMapping("/{id}")
+    public Category getCategoryId(@PathVariable("id") Long categoryId){
+        return categoryService.getCategoryById(categoryId);
     }
 
     @GetMapping("/parents")
@@ -63,9 +82,16 @@ public class CategoryController {
         return  categoryService.getParentCategories();
     }
 
+
     @GetMapping("/{parentId}/subcategories")
     public List<Category> getSubCategories(@PathVariable Long parentId) {
         return categoryService.getSubCategories(parentId);
+    }
+
+    //lấy danh sách danh mục không phân trang
+    @GetMapping("/all-no-page")
+    public List<Category> getAllCategoriesNoPage(){
+        return categoryService.getAllCategoriesNoPage();
     }
 
     @PutMapping("/{id}")
@@ -73,9 +99,12 @@ public class CategoryController {
             , @Valid @RequestBody CategoryDTO categoryDTO){
         try
         {
-            categoryService.updateCategory(id, categoryDTO);
+            Category updatedCategory= categoryService.updateCategory(id, categoryDTO);
             return ResponseEntity.ok(CategoryResponse.builder()
                     .message(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_CATEGORY_SUCCESSFULLY))
+                            .id(updatedCategory.getId())
+                            .name(updatedCategory.getName())
+                            .parentId(updatedCategory.getParentId())
                     .build());
         }catch (Exception e)
         {
@@ -86,8 +115,10 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public  ResponseEntity<String> deleteCategory(@PathVariable Long id){
+    public  ResponseEntity<DeleteCategoryResponse> deleteCategory(@PathVariable Long id){
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY,id));
+        return ResponseEntity.ok().body(DeleteCategoryResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_CATEGORY_SUCCESSFULLY,id))
+                .build());
     }
 }

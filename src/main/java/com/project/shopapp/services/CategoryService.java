@@ -8,9 +8,11 @@ import com.project.shopapp.repositories.CategoryRepository;
 import com.project.shopapp.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -43,9 +45,15 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public List<Category> getAllCategories() {
+    public Page<Category> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<Category> getAllCategoriesNoPage() {
         return categoryRepository.findAll();
     }
+
 
     @Override
     @Transactional
@@ -55,6 +63,7 @@ public class CategoryService implements ICategoryService {
             throw new DataNotFoundException(localizationUtils.getLocalizedMessage(MessageKeys.CATEGORY_NOT_FOUND));
         }
         existingCategory.setName(categoryDTO.getName());
+        existingCategory.setParentId(categoryDTO.getParentId());
         categoryRepository.save(existingCategory);
         return existingCategory;
     }
