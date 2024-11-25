@@ -3,6 +3,8 @@ package com.project.shopapp.controllers;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.AttributeDTO;
 import com.project.shopapp.dtos.CategoryDTO;
+import com.project.shopapp.models.Attribute;
+import com.project.shopapp.models.Category;
 import com.project.shopapp.responses.AttributeResponse;
 import com.project.shopapp.responses.CategoryResponse;
 import com.project.shopapp.services.AttributeService;
@@ -12,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +44,9 @@ public class AttributeController {
         return ResponseEntity.ok(AttributeResponse.builder()
                 .message(localizationUtils.getLocalizedMessage(MessageKeys.INSERT_ATTRIBUTE_SUCCESSFULLY))
                 .build());
+    }
+    @GetMapping("")
+    public List<Attribute> getAllAttributes(){
+        return attributeService.getAllAttributes();
     }
 }

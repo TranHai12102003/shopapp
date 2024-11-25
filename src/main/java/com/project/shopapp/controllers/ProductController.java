@@ -233,7 +233,7 @@ public class ProductController {
            Product existingProduct = productService.getProductById(id);
             if(existingProduct!= null){
                 productService.deleteProduct(existingProduct.getId());
-                return ResponseEntity.ok("Product with name = " + existingProduct.getName() +" delete successfully");
+                return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY,id));
             }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

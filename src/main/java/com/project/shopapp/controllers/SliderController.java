@@ -217,7 +217,7 @@
                 Slider slider=sliderService.getSliderById(id);
                 if(slider != null){
                     sliderService.deleteSlider(slider.getId());
-                    return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_SLIDER_SUCESSFULLY,id));
+                    return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_SLIDER_SUCCESSFULLY,id));
                 }
             } catch (Exception e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
