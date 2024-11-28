@@ -5,6 +5,7 @@
     import com.project.shopapp.models.LinkType;
     import com.project.shopapp.models.Product;
     import com.project.shopapp.models.Slider;
+    import com.project.shopapp.responses.DeleteSliderResponse;
     import com.project.shopapp.responses.ProductListResponse;
     import com.project.shopapp.responses.ProductResponse;
     import com.project.shopapp.services.ProductService;
@@ -72,6 +73,11 @@
             List<Slider> sliders=sliderService.getAllSliders();
             return ResponseEntity.ok().body(sliders);
 
+        }
+
+        @GetMapping("/{id}")
+        public Slider getSliderById(@PathVariable("id") Long id){
+            return sliderService.getSliderById(id);
         }
 
         @GetMapping("/{id}/action")
@@ -212,15 +218,19 @@
         }
 
         @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteSlider(@PathVariable("id") long id){
+        public ResponseEntity<DeleteSliderResponse> deleteSlider(@PathVariable("id") long id){
             try {
                 Slider slider=sliderService.getSliderById(id);
                 if(slider != null){
                     sliderService.deleteSlider(slider.getId());
-                    return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_SLIDER_SUCCESSFULLY,id));
+                    return ResponseEntity.ok(DeleteSliderResponse.builder()
+                                    .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_SLIDER_SUCCESSFULLY,id))
+                            .build());
                 }
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
+                return ResponseEntity.badRequest().body(DeleteSliderResponse.builder()
+                        .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_SLIDER_SUCCESSFULLY,id))
+                        .build());
             }
             return null;
         }

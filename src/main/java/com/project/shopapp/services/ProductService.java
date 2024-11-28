@@ -102,6 +102,11 @@ public class ProductService implements IProductService {
         return productsPage.map(ProductResponse::fromProduct);
     }
 
+    @Override
+    public List<Product> getLatestProducts() {
+        return productRepository.findTop4ByOrderByIdDesc();
+    }
+
 
     @Override
     @Transactional

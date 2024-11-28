@@ -38,7 +38,7 @@ public class SliderService implements ISliderService{
     }
 
     @Override
-    public Slider getSliderById(long id) throws Exception {
+    public Slider getSliderById(long id)  {
         return sliderRepository.findById(id).orElseThrow(
                 ()->new DataNotFoundException("Slider not found")
         );

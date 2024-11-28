@@ -24,6 +24,7 @@ public class MessageKeys {
     public static final String CREATE_PRODUCT_FAILED="product.create_product_failed";
     public static final String CAN_NOT_FIND_PRODUCTS="product.find_product_failed";
     public static final String DELETE_PRODUCT_SUCCESSFULLY="product.delete_product.successfully";
+    public static final String DELETE_PRODUCT_FAILED="product.delete_product.failed";
 
     public static final String UPLOAD_IMAGES_MAX_6 = "product.upload_images.error_max_5_images";
     public static final String UPLOAD_IMAGES_FILE_LARGE = "product.upload_images.file_large";

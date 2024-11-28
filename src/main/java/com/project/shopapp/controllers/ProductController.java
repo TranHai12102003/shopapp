@@ -6,6 +6,7 @@ import com.project.shopapp.dtos.ProductDTO;
 import com.project.shopapp.dtos.ProductImageDTO;
 import com.project.shopapp.models.Product;
 import com.project.shopapp.models.ProductImage;
+import com.project.shopapp.responses.DeleteProductResponse;
 import com.project.shopapp.responses.ProductListResponse;
 import com.project.shopapp.responses.ProductResponse;
 import com.project.shopapp.services.IProductService;
@@ -208,6 +209,12 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<List<Product>> getLatestProducts() {
+        List<Product> latestProducts = productService.getLatestProducts();
+        return ResponseEntity.ok(latestProducts);
+    }
+
     @GetMapping("/by-ids")
     public ResponseEntity<?> getProductsByIds(@RequestParam("ids") String ids){
         try {
@@ -228,15 +235,19 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("id") long id) {
+    public ResponseEntity<DeleteProductResponse> deleteProduct(@PathVariable("id") long id) {
         try {
            Product existingProduct = productService.getProductById(id);
             if(existingProduct!= null){
                 productService.deleteProduct(existingProduct.getId());
-                return ResponseEntity.ok(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_ORDER_SUCCESSFULLY,id));
+                return ResponseEntity.ok().body(DeleteProductResponse.builder()
+                                .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_PRODUCT_SUCCESSFULLY,id))
+                        .build());
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(DeleteProductResponse.builder()
+                    .message(localizationUtils.getLocalizedMessage(MessageKeys.DELETE_PRODUCT_FAILED,id))
+                    .build());
         }
         return null;
     }
@@ -267,6 +278,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct( @PathVariable long id, @RequestBody ProductDTO productDTO){
+        System.out.println("Payload nhận được: " + productDTO);
         try {
             Product updateProduct=productService.updateProduct(id,productDTO);
             return ResponseEntity.ok(ProductResponse.fromProduct(updateProduct));

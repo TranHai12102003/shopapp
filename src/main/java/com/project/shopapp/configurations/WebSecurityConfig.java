@@ -146,6 +146,8 @@ public class WebSecurityConfig {
                             .requestMatchers(GET,
                                     String.format("%s/sliders",apiPrefix)).permitAll()
                             .requestMatchers(GET,
+                                    String.format("%s/sliders/**",apiPrefix)).permitAll()
+                            .requestMatchers(GET,
                                     String.format("%s/sliders/images/*",apiPrefix)).permitAll()
                             .requestMatchers(GET,
                                     String.format("%s/sliders/*/action",apiPrefix)).permitAll()

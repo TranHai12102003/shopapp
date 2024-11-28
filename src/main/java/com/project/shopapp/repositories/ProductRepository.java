@@ -32,4 +32,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     //lấy sản phẩm thuộc 1 danh muc
     Page<Product> findByCategoryId(Long categoryId,Pageable pageable);
+
+    List<Product> findTop4ByOrderByIdDesc();
 }
