@@ -20,6 +20,9 @@ public class MessageKeys {
 
     public static final String DELETE_ORDER_SUCCESSFULLY = "order.delete_order.delete_successfully";
     public static final String DELETE_ORDER_DETAIL_SUCCESSFULLY = "order.delete_order_detail.delete_successfully";
+    public static final String UPDATE_ORDER_STATUS_SUCCESSFULLY="order.update_status.successfully";
+    public static final String UPDATE_ORDER_STATUS_FAILED="order.update_status.failed";
+
 
     public static final String CREATE_PRODUCT_FAILED="product.create_product_failed";
     public static final String CAN_NOT_FIND_PRODUCTS="product.find_product_failed";

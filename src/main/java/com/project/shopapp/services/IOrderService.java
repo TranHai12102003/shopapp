@@ -14,4 +14,5 @@ public interface IOrderService {
     void deleteOrder(Long id);
     List<Order> findByUserId(Long userid);
     Page<Order> getOrdersByKeyword(String keyword, Pageable pageable);
+    void updateOrderSatus(Long orderId, String newStatus);
 }

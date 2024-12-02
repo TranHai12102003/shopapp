@@ -126,4 +126,12 @@ public class OrderService implements IOrderService{
     public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable){
         return orderRepository.findByKeyword(keyword,pageable);
     }
+
+    @Override
+    public void updateOrderSatus(Long orderId, String newStatus) {
+        Order order=orderRepository.findById(orderId).
+                orElseThrow(()-> new DataNotFoundException("Đơn hàng không tồn tại."));
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
 }

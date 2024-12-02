@@ -3,10 +3,7 @@ package com.project.shopapp.controllers;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.dtos.OrderDTO;
 import com.project.shopapp.models.Order;
-import com.project.shopapp.responses.OrderListResponse;
-import com.project.shopapp.responses.OrderResponse;
-import com.project.shopapp.responses.ProductListResponse;
-import com.project.shopapp.responses.ProductResponse;
+import com.project.shopapp.responses.*;
 import com.project.shopapp.services.IOrderService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -22,6 +20,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/orders")
@@ -119,4 +118,19 @@ public class OrderController {
                 .build());
     }
 
+    //API để cập nhật trạng thái đơn hàng
+    @PutMapping("{id}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String,String> request){
+        try {
+            String newStatus = request.get("status");
+            orderService.updateOrderSatus(id,newStatus);
+            return ResponseEntity.ok(UpdateOrderStatusResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_ORDER_STATUS_SUCCESSFULLY,id))
+                    .build());
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(UpdateOrderStatusResponse.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKeys.UPDATE_ORDER_STATUS_FAILED))
+                    .build());
+        }
+    }
 }

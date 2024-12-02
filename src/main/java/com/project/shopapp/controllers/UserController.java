@@ -3,16 +3,18 @@ package com.project.shopapp.controllers;
 import com.project.shopapp.dtos.UpdateUserDTO;
 import com.project.shopapp.dtos.UserDTO;
 import com.project.shopapp.dtos.UserLoginDTO;
+import com.project.shopapp.exceptions.DataNotFoundException;
 import com.project.shopapp.models.Role;
 import com.project.shopapp.models.User;
-import com.project.shopapp.responses.LoginResponse;
-import com.project.shopapp.responses.RegisterResponse;
-import com.project.shopapp.responses.UserResponse;
+import com.project.shopapp.responses.*;
 import com.project.shopapp.services.UserService;
 import com.project.shopapp.components.LocalizationUtils;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -83,6 +85,26 @@ public class UserController {
         }
     }
 
+    @GetMapping("")
+    public ResponseEntity<UserListResponse> getAllUsers(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int limit){
+        PageRequest pageRequest=PageRequest.of(
+                page,limit,
+                Sort.by("id").ascending());
+        Page<UserResponse> userPage=userService
+                .findAll(keyword,pageRequest)
+                .map(UserResponse::fromUser);
+        //lay tong so trang
+        int totalPages=userPage.getTotalPages();
+        List<UserResponse> userResponses=userPage.getContent();
+        return ResponseEntity.ok(UserListResponse.builder()
+                .users(userResponses)
+                .totalPages(totalPages)
+                .build());
+    }
+
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("Authorization") String token){
         try {
@@ -112,6 +134,26 @@ public class UserController {
             return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{userId}/status")
+    public ResponseEntity<UserBlockOrEnableResponse> blockOrEnableUser(
+            @PathVariable("userId") Long userId,
+            @RequestParam("active") Boolean active)
+    {
+        try{
+            // Gọi service để xử lý
+            userService.blockOrEnable(userId,active);
+            String message = active ? "tài khoản đã được kích hoạt." : "tài khoản đã bị khóa.";
+            return ResponseEntity.ok(UserBlockOrEnableResponse.builder()
+                            .message(message)
+                    .build());
+        }catch (DataNotFoundException ex){
+            // Nếu không tìm thấy user, trả về lỗi 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(UserBlockOrEnableResponse.builder()
+                            .message(ex.getMessage())
+                    .build());
         }
     }
 }

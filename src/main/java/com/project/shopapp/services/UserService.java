@@ -13,12 +13,17 @@ import com.project.shopapp.repositories.UserRepository;
 import com.project.shopapp.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
 
@@ -168,5 +173,18 @@ public class UserService implements IUserService{
         //existingUser.setRole(updatedRole);
         // Save the updated user
         return userRepository.save(existingUser);
+    }
+
+    @Override
+    public Page<User> findAll(String keyword, Pageable pageable) {
+        return userRepository.findAll(keyword,pageable);
+    }
+
+    @Override
+    public void blockOrEnable(Long userId, Boolean active) throws DataNotFoundException {
+        User exstingUser = userRepository.findById(userId).orElseThrow(
+                ()->new DataNotFoundException("Không tìm thấy khách hàng"));
+        exstingUser.setActive(active);
+        userRepository.save(exstingUser);
     }
 }
