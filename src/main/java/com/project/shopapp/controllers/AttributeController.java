@@ -7,6 +7,7 @@ import com.project.shopapp.models.Attribute;
 import com.project.shopapp.models.Category;
 import com.project.shopapp.responses.AttributeResponse;
 import com.project.shopapp.responses.CategoryResponse;
+import com.project.shopapp.responses.DeleteCategoryResponse;
 import com.project.shopapp.services.AttributeService;
 import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
@@ -48,5 +49,30 @@ public class AttributeController {
     @GetMapping("")
     public List<Attribute> getAllAttributes(){
         return attributeService.getAllAttributes();
+    }
+
+    @PutMapping("/{id}")
+    public  ResponseEntity<AttributeResponse> updateAttribute(@PathVariable Long id
+            , @Valid @RequestBody AttributeDTO attributeDTO){
+        try
+        {
+            Attribute updatedAttribute= attributeService.updateAttribute(id, attributeDTO);
+            return ResponseEntity.ok(AttributeResponse.builder()
+                    .message("Cập nhât thuộc tính sản phẩm thành công")
+                    .build());
+        }catch (Exception e)
+        {
+            return ResponseEntity.badRequest().body(AttributeResponse.builder()
+                    .message("Lỗi nhật thuộc tính sản phẩm")
+                    .build());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AttributeResponse> deleteAttribute(@PathVariable("id") Long id){
+        attributeService.deleteAttribute(id);
+        return ResponseEntity.ok().body(AttributeResponse.builder()
+                .message("Xóa thuộc tính thành công")
+                .build());
     }
 }
